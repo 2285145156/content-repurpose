@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI LinkedIn Post Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0077b5 0%, #00a0dc 100%); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="gradient-bg text-white py-6 shadow-lg">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                AI LinkedIn Post Generator
+            </h1>
+            <p class="text-blue-100 mt-1">Create professional LinkedIn posts in seconds</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Post Type</label>
+                    <select id="postType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="achievement">Achievement/Win</option>
+                        <option value="insight">Industry Insight</option>
+                        <option value="lesson">Lesson Learned</option>
+                        <option value="question">Question/Engagement</option>
+                        <option value="tool">Tool/Resource Share</option>
+                        <option value="story">Personal Story</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tone</label>
+                    <select id="tone" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="professional">Professional</option>
+                        <option value="casual">Casual & Friendly</option>
+                        <option value="inspirational">Inspirational</option>
+                        <option value="educational">Educational</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Topic / Key Message</label>
+                <textarea id="topic" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="What do you want to write about? E.g., 'how I increased sales by 50%'"></textarea>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience (optional)</label>
+                <input id="audience" type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="E.g., startup founders, marketers, developers">
+            </div>
+
+            <button onclick="generatePost()" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Generate LinkedIn Post
+            </button>
+        </div>
+
+        <div id="result" class="hidden bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">Generated Post</h2>
+                <button onclick="copyToClipboard()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Copy to Clipboard</button>
+            </div>
+            <div id="postContent" class="whitespace-pre-wrap text-gray-700 leading-relaxed p-4 bg-gray-50 rounded-lg"></div>
+            
+            <div class="mt-4 flex gap-3">
+                <button onclick="regenerate()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors">
+                    Regenerate
+                </button>
+                <button onclick="downloadPost()" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg transition-colors">
+                    Download (.txt)
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p class="text-gray-600 mt-2">Generating your LinkedIn post...</p>
+        </div>
+
+        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
+            <p class="text-red-700" id="errorMessage"></p>
+        </div>
+    </main>
+
+    <footer class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-500 text-sm">
+        <p>AI LinkedIn Post Generator &copy; 2026 | <a href="https://8828481613383.gumroad.com/l/ai-prompts-bundle" class="text-blue-600 hover:underline">Get More Prompts</a></p>
+    </footer>
+
+    <script>
+        const prompts = {
+            achievement: {
+                professional: "Write a professional LinkedIn post about {topic}. Tone: professional, highlight results and impact. Include a hook, body with details, and call to action.",
+                casual: "Write a friendly LinkedIn post about {topic}. Tone: casual and relatable, share the journey casually. Include emojis where appropriate.",
+                inspirational: "Write an inspirational LinkedIn post about {topic}. Focus on overcoming challenges and motivate others.",
+                educational: "Write an educational LinkedIn post about {topic}. Share key learnings and actionable insights."
+            },
+            insight: {
+                professional: "Write a thought leadership LinkedIn post about {topic}. Professional tone, include data or evidence, actionable insights.",
+                casual: "Write a conversational LinkedIn post sharing an insight about {topic}. Make it relatable and engaging.",
+                inspirational: "Write an inspiring LinkedIn post about {topic} that challenges conventional thinking.",
+                educational: "Write an educational LinkedIn post explaining {topic}. Break down complex ideas simply."
+            },
+            lesson: {
+                professional: "Write a LinkedIn post sharing lessons learned from {topic}. Professional tone, include specific takeaways.",
+                casual: "Write a LinkedIn post about lessons I learned from {topic}. Conversational, honest, relatable.",
+                inspirational: "Write an inspiring LinkedIn post about the key lesson from {topic} that changed my perspective.",
+                educational: "Write an educational LinkedIn post breaking down lessons from {topic}. Clear, actionable advice."
+            },
+            question: {
+                professional: "Write an engaging LinkedIn post asking about {topic}. Professional tone, spark discussion.",
+                casual: "Write a friendly LinkedIn post starting a conversation about {topic}. Make it fun to respond to.",
+                inspirational: "Write an inspiring LinkedIn post that challenges people to think about {topic}.",
+                educational: "Write a LinkedIn post asking the audience to share their experience with {topic}."
+            },
+            tool: {
+                professional: "Write a LinkedIn post recommending {topic} as a tool/resource. Professional recommendation with key benefits.",
+                casual: "Write a LinkedIn post sharing {topic} that I found useful. Casual, genuine recommendation.",
+                inspirational: "Write an inspiring LinkedIn post about how {topic} changed the way I work.",
+                educational: "Write a LinkedIn post explaining how {topic} works and why it's useful."
+            },
+            story: {
+                professional: "Write a professional personal story LinkedIn post about {topic}. Professional framing, valuable lesson.",
+                casual: "Write a personal story LinkedIn post about {topic}. Authentic, conversational, relatable.",
+                inspirational: "Write an inspiring personal story about {topic} that shows transformation.",
+                educational: "Write a LinkedIn post telling a story about {topic} with actionable takeaways."
+            }
+        };
+
+        let currentPost = '';
+
+        function generateLocalPost(type, tone, topic, audience) {
+            const templates = {
+                achievement: [
+                    `🎉 Something exciting to share!\n\n${topic}\n\nThis didn't happen overnight. It took months of consistent effort, learning from failures, and staying focused on the goal.\n\nKey lessons:\n✅ Stay consistent\n✅ Listen to feedback\n✅ Never give up\n\nWhat's been your biggest win recently? Let's celebrate in the comments! 👇`,
+                    `Big news! 🚀\n\n${topic}\n\nI'm incredibly grateful for this journey and everyone who supported me along the way.\n\nTo the team, partners, and everyone who believed in this vision - thank you!\n\nThis is just the beginning.`
+                ],
+                insight: [
+                    `💡 Here's something interesting I noticed...\n\n${topic}\n\nThis has significant implications for ${audience || 'professionals'} in our industry.\n\nWhat are your thoughts on this? I'd love to hear different perspectives.`,
+                    `Hot take: 🔥\n\n${topic}\n\nMost people disagree, but I believe this is the future.\n\nHere's why:\n\n1. Market trends\n2. User behavior shifts\n3. Technology evolution\n\nAgree or disagree? Let's discuss.`
+                ],
+                lesson: [
+                    `I learned something valuable today about ${topic}.\n\nThe biggest lesson: It's not about having all the answers - it's about asking the right questions.\n\nHere's what I would do differently:\n\n1. Start earlier\n2. Focus on fundamentals\n3. Stay curious\n\nWhat lessons have you learned recently?`,
+                    `A hard lesson learned about ${topic}:\n\nSuccess isn't linear. Setbacks are part of the journey.\n\nWhat I realized:\n→ Failure is feedback\n→ Consistency beats intensity\n→ Community matters\n\nShare your lessons in the comments!`
+                ],
+                question: [
+                    `I'd love your input on this! 🤔\n\n${topic}\n\nFor those who have experience with this:\n- What worked for you?\n- What would you do differently?\n\nDrop your thoughts below! 👇`,
+                    `Question for the community:\n\n${topic}\n\nI've been thinking about this for a while and want to gather different perspectives.\n\nTag someone who would have great insights on this!`
+                ],
+                tool: [
+                    `🔧 Sharing a game-changer: ${topic}\n\nBeen using this for a while and it has completely transformed my workflow.\n\nWhy I love it:\n✅ Saves time\n✅ Easy to use\n✅ Delivers results\n\nIf you want to check it out, DM me!\n\nWhat tools have you found useful lately?`,
+                    `Must-have resource alert! 📦\n\nJust discovered ${topic} and had to share.\n\nPerfect for ${audience || 'professionals'} looking to level up.\n\nAlready implemented it into my routine. Game. Changer.\n\nLink in comments if you want to learn more!`
+                ],
+                story: [
+                    `A few months ago, I was struggling with ${topic}.\n\nI almost gave up. But something kept me going.\n\nHere's what happened:\n\n1. I reached out for help\n2. I made adjustments\n3. I kept pushing forward\n\nNow, looking back - I'm grateful for that struggle.\n\nWhat's your story?`,
+                    `Let me tell you about the time when ${topic}.\n\nIt wasn't easy. There were moments I doubted everything.\n\nBut I learned that:\n💪 Persistence pays off\n🤝 Community is key\n📚 Every experience teaches something\n\nIf you're going through a tough time - keep going.`
+                ]
+            };
+
+            const typeTemplates = templates[type] || templates.insight;
+            const template = typeTemplates[Math.floor(Math.random() * typeTemplates.length)];
+            return template.replace('{topic}', topic);
+        }
+
+        async function generatePost() {
+            const postType = document.getElementById('postType').value;
+            const tone = document.getElementById('tone').value;
+            const topic = document.getElementById('topic').value.trim();
+            const audience = document.getElementById('audience').value.trim();
+
+            if (!topic) {
+                showError('Please enter a topic or key message.');
+                return;
+            }
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+
+            // Use template-based generation (MiniMax API not available)
+            currentPost = generateLocalPost(postType, tone, topic, audience);
+            document.getElementById('postContent').textContent = currentPost;
+            document.getElementById('result').classList.remove('hidden');
+
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function regenerate() {
+            generatePost();
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(currentPost).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        function downloadPost() {
+            const blob = new Blob([currentPost], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'linkedin-post.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('error').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
